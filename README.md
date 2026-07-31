@@ -211,15 +211,9 @@ max_tokens_per_file: 8000
 
 ---
 
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
 <div align="center">
 
-**Built with ❤️ for Open-Source Developers and Autonomous Operations**
+**Built by Aradhya Sonar for Autonomous Operations**
 
 </div>
 
