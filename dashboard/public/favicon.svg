@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0a1a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="spark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#4ade80"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Outer Rounded Container -->
+  <rect width="512" height="512" rx="128" fill="url(#bg-grad)"/>
+  <rect width="496" height="496" x="8" y="8" rx="120" fill="none" stroke="url(#primary-grad)" stroke-width="6" opacity="0.4"/>
+  
+  <!-- Glow Backdrop -->
+  <circle cx="256" cy="256" r="160" fill="#a855f7" opacity="0.15" filter="url(#glow)"/>
+
+  <!-- Code Document / README Icon Base -->
+  <g transform="translate(106, 86)">
+    <!-- Document Card -->
+    <path d="M40 0 H200 L260 60 V300 C260 322 242 340 220 340 H40 C18 340 0 322 0 300 V40 C0 18 18 0 40 0 Z" fill="rgba(15, 23, 42, 0.85)" stroke="url(#primary-grad)" stroke-width="12" filter="url(#glow)"/>
+    <!-- Folded Corner -->
+    <path d="M200 0 V60 H260" fill="none" stroke="url(#primary-grad)" stroke-width="12" stroke-linejoin="round"/>
+    
+    <!-- Code Bracket < / > Symbol on Document -->
+    <path d="M70 140 L40 170 L70 200" fill="none" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M130 140 L160 170 L130 200" fill="none" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="110" y1="135" x2="90" y2="205" stroke="#a855f7" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Document Text Lines -->
+    <rect x="40" y="240" width="180" height="12" rx="6" fill="#94a3b8" opacity="0.8"/>
+    <rect x="40" y="270" width="130" height="12" rx="6" fill="#64748b" opacity="0.6"/>
+  </g>
+
+  <!-- AI Automation Sparkle -->
+  <g transform="translate(330, 90)">
+    <path d="M30 0 L37 23 L60 30 L37 37 L30 60 L23 37 L0 30 L23 23 Z" fill="url(#spark-grad)"/>
+  </g>
+</svg>

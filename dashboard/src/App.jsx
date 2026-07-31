@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GitBranch, FileText, ArrowLeftRight, Clock, AlertCircle, BarChart2, Activity, Cpu, ShieldAlert, Zap, ChevronRight, LayoutGrid, Radar, Battery, Power, Settings, Eye, EyeOff, KeyRound, Fingerprint, Users, Globe, Search, RefreshCw } from 'lucide-react';
+import { GitBranch, FileText, ArrowLeftRight, Clock, AlertCircle, BarChart2, Activity, Cpu, ShieldAlert, Zap, ChevronRight, LayoutGrid, Radar, Battery, Power, Settings, Eye, EyeOff, KeyRound, Fingerprint, Users, Globe, Search, RefreshCw, FileCode } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line } from 'recharts';
 import DiffViewer from './components/DiffViewer';
 import { createClient } from '@supabase/supabase-js';
@@ -481,7 +481,7 @@ function App() {
       <header className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ background: 'var(--accent-glow)', padding: '12px', borderRadius: '50%', boxShadow: '0 0 20px var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Radar size={32} color="var(--accent-light)" className="radar-spin" />
+            <FileCode size={32} color="var(--accent-light)" className="autoreadme-icon-glow" />
           </div>
           <div>
             <h1 style={{ margin: 0, textShadow: '0 0 10px rgba(168, 85, 247, 0.5)' }}>AutoREADME</h1>

@@ -351,3 +351,13 @@ body {
 .radar-spin {
   animation: radarSpin 4s linear infinite;
 }
+
+@keyframes iconPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.6)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.6)); }
+}
+
+.autoreadme-icon-glow {
+  animation: iconPulse 3s ease-in-out infinite;
+}
