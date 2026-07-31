@@ -12,7 +12,7 @@ if (supabaseUrl && supabaseAnonKey) {
   try {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
   } catch (e) {
-    console.error('[RepoSonar] Failed to initialize Supabase client:', e);
+    console.error('[AutoREADME] Failed to initialize Supabase client:', e);
   }
 }
 
@@ -282,19 +282,19 @@ function App() {
     ];
     setAvailableRepos(defaultRepos);
     setActiveRepos(defaultRepos);
-    setUserNotes("Portfolio Demonstration Copy: RepoSonar executes an autonomous pipeline (GitHub Actions + Python + Multi-LLMs) that analyzes project repositories, generates code documentation updates, and syncs live telemetry metrics.");
+    setUserNotes("Portfolio Demonstration Copy: AutoREADME executes an autonomous pipeline (GitHub Actions + Python + Multi-LLMs) that analyzes project repositories, generates code documentation updates, and syncs live telemetry metrics.");
     setRunsPerDay(4);
     setBudgetUsed(145);
     setProjectedUsage(420);
 
     const now = new Date();
     const mockCommits = [
-      { id: 1, repo_name: 'RepoSonar', commit_message: 'docs: synchronize autonomous AI pipeline telemetry & configuration schema', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 2).toISOString(), files_changed: ['README.md'] },
-      { id: 2, repo_name: 'RepoSonar', commit_message: 'docs: refine multi-provider AI reviewer error handling and quota fallback', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 18).toISOString(), files_changed: ['README.md'] },
+      { id: 1, repo_name: 'AutoREADME', commit_message: 'docs: synchronize autonomous AI pipeline telemetry & configuration schema', status: 'improved', pr_url: 'https://github.com/sonararadhya/AutoREADME/commit/main', processed_at: new Date(now - 3600000 * 2).toISOString(), files_changed: ['README.md'] },
+      { id: 2, repo_name: 'AutoREADME', commit_message: 'docs: refine multi-provider AI reviewer error handling and quota fallback', status: 'improved', pr_url: 'https://github.com/sonararadhya/AutoREADME/commit/main', processed_at: new Date(now - 3600000 * 18).toISOString(), files_changed: ['README.md'] },
       { id: 3, repo_name: 'AutoRepoImprover', commit_message: 'docs: add multi-model support for Groq and OpenRouter AI models', status: 'improved', pr_url: 'https://github.com/sonararadhya/AutoRepoImprover/commit/main', processed_at: new Date(now - 3600000 * 24).toISOString(), files_changed: ['README.md'] },
       { id: 4, repo_name: 'Chess7Knight', commit_message: 'docs: document game review state management and theme system', status: 'improved', pr_url: 'https://github.com/sonararadhya/Chess7Knight/commit/main', processed_at: new Date(now - 3600000 * 36).toISOString(), files_changed: ['README.md'] },
       { id: 5, repo_name: 'DeveloperPortfolio', commit_message: 'docs: update certificate lazy-loading engine documentation', status: 'improved', pr_url: 'https://github.com/sonararadhya/DeveloperPortfolio/commit/main', processed_at: new Date(now - 3600000 * 48).toISOString(), files_changed: ['README.md'] },
-      { id: 6, repo_name: 'RepoSonar', commit_message: 'docs: optimize SHA-256 hash caching and prompt token consumption', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 60).toISOString(), files_changed: ['README.md'] }
+      { id: 6, repo_name: 'AutoREADME', commit_message: 'docs: optimize SHA-256 hash caching and prompt token consumption', status: 'improved', pr_url: 'https://github.com/sonararadhya/AutoREADME/commit/main', processed_at: new Date(now - 3600000 * 60).toISOString(), files_changed: ['README.md'] }
     ];
 
     setResults(mockCommits);
@@ -320,7 +320,7 @@ function App() {
       { name: 'Skipped', value: 3, color: '#64748b' }
     ]);
     setRepoChartData([
-      { name: 'RepoSonar', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [1, 2, 1, 2, 2][i] })) },
+      { name: 'AutoREADME', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [1, 2, 1, 2, 2][i] })) },
       { name: 'AutoRepoImprover', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [1, 1, 1, 1, 1][i] })) },
       { name: 'Chess7Knight', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [0, 1, 1, 1, 1][i] })) }
     ]);
@@ -334,7 +334,7 @@ function App() {
   useEffect(() => {
     async function fetchData() {
       if (!supabase) {
-        console.info('[RepoSonar] Supabase credentials not found. Loading showcase fallback telemetry for portfolio view.');
+        console.info('[AutoREADME] Supabase credentials not found. Loading showcase fallback telemetry for portfolio view.');
         loadFallbackShowcaseData();
         setLoading(false);
         return;
@@ -484,7 +484,7 @@ function App() {
             <Radar size={32} color="var(--accent-light)" className="radar-spin" />
           </div>
           <div>
-            <h1 style={{ margin: 0, textShadow: '0 0 10px rgba(168, 85, 247, 0.5)' }}>RepoSonar</h1>
+            <h1 style={{ margin: 0, textShadow: '0 0 10px rgba(168, 85, 247, 0.5)' }}>AutoREADME</h1>
             <p style={{ margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
                <Activity size={14} color="var(--accent-primary)"/> Autonomous AI Telemetry Engine
             </p>
@@ -548,8 +548,8 @@ function App() {
             <Zap size={22} color="var(--accent-light)" />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '16px', color: 'white', fontWeight: 'bold' }}>PORTFOLIO SHOWCASE DEMO COPY — RepoSonar AI Telemetry Engine</h3>
-            <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>This page demonstrates the full architecture, interactive telemetry, and automated controls of the original RepoSonar AI pipeline.</p>
+            <h3 style={{ margin: 0, fontSize: '16px', color: 'white', fontWeight: 'bold' }}>PORTFOLIO SHOWCASE DEMO COPY — AutoREADME AI Telemetry Engine</h3>
+            <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>This page demonstrates the full architecture, interactive telemetry, and automated controls of the original AutoREADME AI pipeline.</p>
           </div>
         </div>
         <span style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '20px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)', fontWeight: 'bold', letterSpacing: '0.5px' }}>INTERACTIVE DEMO COPY</span>
@@ -575,7 +575,7 @@ function App() {
                 </div>
                 <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                   <strong>Purpose:</strong> Displays real-time status matrix, log counts, 7-day contribution heatmaps, and last activity timestamps for all connected repositories.<br/>
-                  <strong>Project Working:</strong> RepoSonar runs an automated workflow (via GitHub Actions & Python orchestrator) that pulls target repos, scans source code for undocumented features, uses multi-provider AI (Groq, GitHub Models, OpenRouter, Gemini) to update README documentation, and logs commit metrics directly to Supabase.
+                  <strong>Project Working:</strong> AutoREADME runs an automated workflow (via GitHub Actions & Python orchestrator) that pulls target repos, scans source code for undocumented features, uses multi-provider AI (Groq, GitHub Models, OpenRouter, Gemini) to update README documentation, and logs commit metrics directly to Supabase.
                 </p>
               </div>
               <div className="repos-grid">
