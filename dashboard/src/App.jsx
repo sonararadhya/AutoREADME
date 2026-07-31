@@ -274,8 +274,6 @@ function App() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     async function fetchData() {
       if (!supabase) {
         setError('Supabase credentials missing.');
