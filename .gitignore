@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Environment Secrets
+.env
+.env.local
+
+# Generated runtime data & logs
+logs/
+workspace/
+*.log
+
+# Node & Dashboard
+node_modules/
+dist/
+.next/
+.cache/
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,66 @@
+# ============================================================
+#  RepoSonar — Autonomous AI Documentation Engine
+#  All secrets are pulled from environment variables / GitHub Secrets
+# ============================================================
+
+# Secrets — Left empty here (loaded dynamically via environment or GitHub Secrets)
+gemini_api_key:    ""     # Environment Variable: GEMINI_API_KEY
+groq_api_key:      ""     # Environment Variable: GROQ_API_KEY
+openrouter_api_key: ""    # Environment Variable: OPENROUTER_API_KEY
+github_token:      ""     # Environment Variable: GITHUB_TOKEN (PAT_TOKEN)
+github_username:   ""     # Environment Variable: GITHUB_USERNAME
+supabase_url:      ""     # Environment Variable: SUPABASE_URL
+supabase_key:      ""     # Environment Variable: SUPABASE_KEY
+
+# Repositories to monitor and improve automatically
+repos:
+  - "https://github.com/your-username/sample-project-1"
+  - "https://github.com/your-username/sample-project-2"
+
+# Documentation Improvement Objectives
+readme_goals:
+  - "Improve technical clarity, tone, and professional structure"
+  - "Fix grammar, spelling, and Markdown formatting errors"
+  - "Ensure complete installation, dependency, and usage instructions"
+  - "Discover and add undocumented features discovered via source code analysis"
+  - "Modernize formatting with intuitive headings, badges, and code blocks"
+
+# Source code analyzer scan filters (Read-Only)
+source_scan_extensions:
+  - ".py"
+  - ".js"
+  - ".ts"
+  - ".jsx"
+  - ".tsx"
+  - ".java"
+  - ".go"
+  - ".rs"
+  - ".html"
+  - ".css"
+  - ".json"
+  - ".sh"
+  - ".bash"
+  - ".yml"
+  - ".yaml"
+
+source_scan_max_chars: 15000  # Cap for source analysis injected into AI context
+
+# Streak maintenance & execution mode
+force_change: true            # Force processing to guarantee commit activity
+maintenance_mode: false       # Low-power mode: updates timestamps without AI calls
+
+# Target File Filtering (Strictly limits AI modifications to documentation)
+file_extensions:
+  - ".md"
+  - ".txt"
+
+exclude_dirs:
+  - ".git"
+  - "node_modules"
+  - "dist"
+  - ".venv"
+  - "build"
+
+# Performance & Quota Guardrails
+max_files_per_repo: 5
+max_tokens_per_file: 8000

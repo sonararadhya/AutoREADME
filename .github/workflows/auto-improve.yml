@@ -1,0 +1,91 @@
+name: 🤖 RepoSonar — Autonomous Documentation Engine
+
+on:
+  schedule:
+    - cron: "30 0 * * *"
+    - cron: "30 6 * * *"
+    - cron: "30 12 * * *"
+    - cron: "30 18 * * *"
+
+  repository_dispatch:
+    types: [workspace-sync, explicit, trigger-readme-improve]
+
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auto-improve.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: auto-improve
+  cancel-in-progress: false
+
+jobs:
+  improve:
+    name: Improve READMEs (Direct Commit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore workspace cache
+        uses: actions/cache@v4
+        with:
+          path: workspace/
+          key: workspace-${{ github.run_id }}
+          restore-keys: |
+            workspace-
+
+      - name: Restore hash cache
+        uses: actions/cache@v4
+        with:
+          path: logs/hash_cache.json
+          key: hash-cache-${{ github.run_id }}
+          restore-keys: |
+            hash-cache-
+
+      - name: Configure git identity
+        run: |
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL || 'bot@reposonar.dev' }}"
+          git config --global user.name  "${{ secrets.GIT_USER_NAME || 'RepoSonar Bot' }}"
+
+      - name: Run RepoSonar Engine
+        env:
+          GEMINI_API_KEY:     ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY:       ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN:       ${{ secrets.PAT_TOKEN }}
+          GITHUB_USERNAME:    ${{ secrets.PERSONAL_USERNAME }}
+          SUPABASE_URL:       ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:       ${{ secrets.SUPABASE_KEY }}
+          CUSTOM_TRIGGER_NAME: ${{ github.event.action || github.event_name }}
+        run: python main.py
+
+      - name: Upload run logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-logs-${{ github.run_number }}
+          path: |
+            logs/improver.log
+            logs/last_summary.md
+          retention-days: 30
+
+      - name: Post summary to GitHub Actions UI
+        if: always()
+        run: |
+          if [ -f logs/last_summary.md ]; then
+            cat logs/last_summary.md >> $GITHUB_STEP_SUMMARY
+          fi
