@@ -273,10 +273,69 @@ function App() {
     }
   };
 
+  const loadFallbackShowcaseData = () => {
+    const defaultRepos = [
+      'https://github.com/sonararadhya/RepoSonar',
+      'https://github.com/sonararadhya/AutoRepoImprover',
+      'https://github.com/sonararadhya/Chess7Knight',
+      'https://github.com/sonararadhya/DeveloperPortfolio'
+    ];
+    setAvailableRepos(defaultRepos);
+    setActiveRepos(defaultRepos);
+    setUserNotes("Portfolio Demonstration Copy: RepoSonar executes an autonomous pipeline (GitHub Actions + Python + Multi-LLMs) that analyzes project repositories, generates code documentation updates, and syncs live telemetry metrics.");
+    setRunsPerDay(4);
+    setBudgetUsed(145);
+    setProjectedUsage(420);
+
+    const now = new Date();
+    const mockCommits = [
+      { id: 1, repo_name: 'RepoSonar', commit_message: 'docs: synchronize autonomous AI pipeline telemetry & configuration schema', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 2).toISOString(), files_changed: ['README.md'] },
+      { id: 2, repo_name: 'RepoSonar', commit_message: 'docs: refine multi-provider AI reviewer error handling and quota fallback', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 18).toISOString(), files_changed: ['README.md'] },
+      { id: 3, repo_name: 'AutoRepoImprover', commit_message: 'docs: add multi-model support for Groq and OpenRouter AI models', status: 'improved', pr_url: 'https://github.com/sonararadhya/AutoRepoImprover/commit/main', processed_at: new Date(now - 3600000 * 24).toISOString(), files_changed: ['README.md'] },
+      { id: 4, repo_name: 'Chess7Knight', commit_message: 'docs: document game review state management and theme system', status: 'improved', pr_url: 'https://github.com/sonararadhya/Chess7Knight/commit/main', processed_at: new Date(now - 3600000 * 36).toISOString(), files_changed: ['README.md'] },
+      { id: 5, repo_name: 'DeveloperPortfolio', commit_message: 'docs: update certificate lazy-loading engine documentation', status: 'improved', pr_url: 'https://github.com/sonararadhya/DeveloperPortfolio/commit/main', processed_at: new Date(now - 3600000 * 48).toISOString(), files_changed: ['README.md'] },
+      { id: 6, repo_name: 'RepoSonar', commit_message: 'docs: optimize SHA-256 hash caching and prompt token consumption', status: 'improved', pr_url: 'https://github.com/sonararadhya/RepoSonar/commit/main', processed_at: new Date(now - 3600000 * 60).toISOString(), files_changed: ['README.md'] }
+    ];
+
+    setResults(mockCommits);
+    const groups = {};
+    mockCommits.forEach(r => {
+      if (!groups[r.repo_name]) groups[r.repo_name] = [];
+      groups[r.repo_name].push(r);
+    });
+    setRepoGroups(groups);
+
+    const last5Days = getLastNDays(5);
+    setGlobalTimeData(last5Days.map((d, i) => ({ date: d, 'Total System Commits': [2, 4, 3, 5, 4][i] })));
+    setTokenData(last5Days.map((d, i) => ({ date: d, 'Est. Tokens Consumed': [5700, 11400, 8550, 14250, 11400][i] })));
+    setLatencyData([
+      { runId: 'run-01', date: '10:00 AM', 'Latency (sec)': 14 },
+      { runId: 'run-02', date: '02:00 PM', 'Latency (sec)': 18 },
+      { runId: 'run-03', date: '06:00 PM', 'Latency (sec)': 12 },
+      { runId: 'run-04', date: '10:00 PM', 'Latency (sec)': 16 }
+    ]);
+    setPieData([
+      { name: 'Success', value: 14, color: '#22c55e' },
+      { name: 'Partial', value: 2, color: '#eab308' },
+      { name: 'Skipped', value: 3, color: '#64748b' }
+    ]);
+    setRepoChartData([
+      { name: 'RepoSonar', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [1, 2, 1, 2, 2][i] })) },
+      { name: 'AutoRepoImprover', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [1, 1, 1, 1, 1][i] })) },
+      { name: 'Chess7Knight', data: last5Days.map((d, i) => ({ date: d, 'Repository Commits': [0, 1, 1, 1, 1][i] })) }
+    ]);
+    setSystemLogs([
+      { level: 'warning', ts: new Date(now - 3600000 * 4).toISOString(), message: 'Gemini free-tier quota exhausted (429) — successfully failed over to Groq provider.' },
+      { level: 'info', ts: new Date(now - 3600000 * 8).toISOString(), message: 'SHA-256 hash cache hit; skipped AI prompt token generation for unchanged module.' }
+    ]);
+    setError(null);
+  };
+
   useEffect(() => {
     async function fetchData() {
       if (!supabase) {
-        setError('Supabase credentials missing.');
+        console.info('[RepoSonar] Supabase credentials not found. Loading showcase fallback telemetry for portfolio view.');
+        loadFallbackShowcaseData();
         setLoading(false);
         return;
       }
@@ -322,7 +381,7 @@ function App() {
 
         const currentGithubUrls = Array.isArray(ghData) ? ghData.map(r => r.html_url) : [];
         if (currentGithubUrls.length > 0) setAvailableRepos(currentGithubUrls);
-        setActiveRepos(dbRepos);
+        setActiveRepos(dbRepos.length > 0 ? dbRepos : currentGithubUrls);
 
         const validNames = Array.isArray(dbRepos) ? dbRepos.map(url => {
           try { return url.split('/').pop(); } catch(e) { return url; }
@@ -330,6 +389,11 @@ function App() {
         const allResults = (repoRes.data || []).filter(r => validNames.length === 0 || validNames.includes(r.repo_name));
         const runs = runsRes.data || [];
         
+        if (allResults.length === 0) {
+          loadFallbackShowcaseData();
+          return;
+        }
+
         setBudgetUsed(fetchedMinutes);
         const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
         const currentDay = Math.max(1, new Date().getDate());
@@ -403,8 +467,8 @@ function App() {
         setLatencyData(latencies);
 
       } catch (err) {
-        console.error(err);
-        setError(`Failed to fetch data: ${err.message || err}`);
+        console.warn("Failed to fetch live Supabase data, populating showcase fallback.", err);
+        loadFallbackShowcaseData();
       } finally {
         setLoading(false);
       }
@@ -477,6 +541,19 @@ function App() {
           </div>
         </div>
       </header>
+
+      <div className="glass-panel" style={{ padding: '16px 22px', marginBottom: '24px', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.4)', background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ background: 'rgba(168, 85, 247, 0.25)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Zap size={22} color="var(--accent-light)" />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '16px', color: 'white', fontWeight: 'bold' }}>PORTFOLIO SHOWCASE DEMO COPY — RepoSonar AI Telemetry Engine</h3>
+            <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'var(--text-secondary)' }}>This page demonstrates the full architecture, interactive telemetry, and automated controls of the original RepoSonar AI pipeline.</p>
+          </div>
+        </div>
+        <span style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '20px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)', fontWeight: 'bold', letterSpacing: '0.5px' }}>INTERACTIVE DEMO COPY</span>
+      </div>
       
       <div className="nav-bar">
         <button className={`nav-tab ${activeTab === 'SUMMARY' ? 'active' : ''}`} onClick={() => handleTabChange('SUMMARY')}><FileText size={18} /> SUMMARY</button>
