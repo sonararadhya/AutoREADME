@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd dashboard && npm run build",
+  "outputDirectory": "dashboard/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/dashboard/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/dashboard/index.html"
+    }
+  ]
+}
