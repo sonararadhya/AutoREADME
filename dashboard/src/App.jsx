@@ -493,6 +493,7 @@ function App() {
         <div style={{ display: 'flex', gap: '16px' }}>
           <button 
             onClick={handleManualRun}
+            title="Dispatches GitHub Actions repository_dispatch event to trigger an instant out-of-schedule AI documentation run"
             style={{ 
               padding: '10px 20px', borderRadius: '14px', border: 'none', cursor: 'pointer',
               background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)',
@@ -504,6 +505,7 @@ function App() {
           </button>
           <button 
             onClick={() => toggleSwitch('MAINTENANCE_MODE', lowPowerMode, setLowPowerMode)}
+            title="Toggles MAINTENANCE_MODE in Supabase system_config to conserve API token quota during heavy refactoring"
             style={{ 
               padding: '10px 20px', borderRadius: '14px', border: '1px solid var(--panel-border)', cursor: 'pointer',
               background: lowPowerMode ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
@@ -514,6 +516,7 @@ function App() {
           </button>
           <button 
             onClick={() => toggleSwitch('DISABLE_BOT', killSwitchActive, setKillSwitchActive)}
+            title="Emergency kill-switch: Sets DISABLE_BOT = true in Supabase system_config to block all automated bot commits"
             style={{ 
               padding: '10px 20px', borderRadius: '14px', border: 'none', cursor: 'pointer',
               background: killSwitchActive ? 'var(--danger)' : 'rgba(255,255,255,0.05)',
@@ -523,7 +526,7 @@ function App() {
           >
             <Power size={16} /> {killSwitchActive ? 'LOCKED' : 'KILL'}
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }} title="Dynamically modifies GitHub Actions cron schedule (1x, 2x, 3x, or 4x per 24 hours)">
             <span style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 'bold' }}>Runs/Day:</span>
             {[1, 2, 3, 4].map(num => (
               <button 
@@ -542,7 +545,7 @@ function App() {
         </div>
       </header>
 
-      <div className="glass-panel" style={{ padding: '16px 22px', marginBottom: '24px', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.4)', background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)' }}>
+      <div className="glass-panel" style={{ padding: '16px 22px', marginBottom: '20px', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.4)', background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ background: 'rgba(168, 85, 247, 0.25)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={22} color="var(--accent-light)" />
@@ -553,6 +556,57 @@ function App() {
           </div>
         </div>
         <span style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '20px', background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)', fontWeight: 'bold', letterSpacing: '0.5px' }}>INTERACTIVE DEMO COPY</span>
+      </div>
+
+      <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderRadius: '16px', border: '1px solid rgba(56, 189, 248, 0.3)', background: 'rgba(15, 23, 42, 0.6)' }}>
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Settings size={20} color="#38bdf8" /> Top System Action Controls — Architecture Guide
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Zap size={16} color="#38bdf8" />
+              <strong style={{ color: 'white', fontSize: '14px' }}>RUN (Manual Trigger)</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+              <strong>What it does:</strong> Immediately dispatches an out-of-schedule AI documentation run.<br/>
+              <strong>Pipeline:</strong> Sends a <code>repository_dispatch</code> event to GitHub REST API. GitHub Actions launches <code>main.py</code> to inspect code diffs and commit AI-written README updates instantly.
+            </p>
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <ShieldAlert size={16} color="#38bdf8" />
+              <strong style={{ color: 'white', fontSize: '14px' }}>LOW-POWER (Maintenance Mode)</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+              <strong>What it does:</strong> Toggles API token & runner resource conservation.<br/>
+              <strong>Pipeline:</strong> Updates <code>MAINTENANCE_MODE = true</code> in Supabase <code>system_config</code>. When active, the Python orchestrator uses lightweight AST parsing and skips large-context LLM requests during refactoring.
+            </p>
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Power size={16} color="var(--danger)" />
+              <strong style={{ color: 'white', fontSize: '14px' }}>KILL / LOCKED (Bot Lock Switch)</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+              <strong>What it does:</strong> Emergency safety kill-switch to block all automated commits.<br/>
+              <strong>Pipeline:</strong> Sets <code>DISABLE_BOT = true</code> in database config. The Python runner checks this key at boot; if locked, it safely aborts with exit code 0 to prevent commits during sensitive releases.
+            </p>
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Clock size={16} color="#a855f7" />
+              <strong style={{ color: 'white', fontSize: '14px' }}>Runs/Day (Cron Frequency)</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+              <strong>What it does:</strong> Dynamically adjusts automated cron execution frequency (1x, 2x, 3x, or 4x per day).<br/>
+              <strong>Pipeline:</strong> Calls <code>/api/update-schedule</code> to rewrite the GitHub Actions cron expression in <code>auto_improve.yml</code> and syncs <code>RUNS_PER_DAY</code> in Supabase.
+            </p>
+          </div>
+        </div>
       </div>
       
       <div className="nav-bar">
