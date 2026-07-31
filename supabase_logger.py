@@ -140,7 +140,7 @@ class SupabaseLogger:
             color = 16711680 if level == "error" else 16753920
             payload = {
                 "embeds": [{
-                    "title": f"RepoSonar Alert: {level.upper()}",
+                    "title": f"AutoREADME Alert: {level.upper()}",
                     "description": message,
                     "color": color,
                     "timestamp": _now()
@@ -149,7 +149,7 @@ class SupabaseLogger:
             req = urllib.request.Request(
                 webhook_url,
                 data=json.dumps(payload).encode('utf-8'),
-                headers={'Content-Type': 'application/json', 'User-Agent': 'RepoSonar-Bot'}
+                headers={'Content-Type': 'application/json', 'User-Agent': 'AutoREADME-Bot'}
             )
             urllib.request.urlopen(req, timeout=5)
         except Exception as e:

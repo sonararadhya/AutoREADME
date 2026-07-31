@@ -1,5 +1,5 @@
 -- ============================================================
--- RepoSonar — Database Schema for Supabase PostgreSQL
+-- AutoREADME — Database Schema for Supabase PostgreSQL
 -- Copy & Run this SQL script in your Supabase SQL Editor
 -- ============================================================
 

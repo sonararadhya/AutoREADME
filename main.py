@@ -1,5 +1,5 @@
 """
-RepoSonar — Main Orchestrator.
+AutoREADME — Main Orchestrator.
 Fully autonomous repository & documentation maintenance pipeline.
 """
 
@@ -34,7 +34,7 @@ def run():
     run_start_time = time.time()
     
     log.info("=" * 65)
-    log.info("🤖 RepoSonar — Autonomous AI Documentation System")
+    log.info("🤖 AutoREADME — Autonomous AI Documentation System")
     log.info(f"   Execution Time: {datetime.now(timezone.utc).isoformat()} UTC")
     log.info("=" * 65)
 
@@ -334,7 +334,7 @@ def _deterministic_readme_change(content: str) -> str:
         return base_content.rstrip() + ts_line
 
 def _build_final_summary(summaries):
-    if not summaries: return "# 🤖 RepoSonar Execution Summary\n\nNo README files were improved in this run."
+    if not summaries: return "# 🤖 AutoREADME Execution Summary\n\nNo README files were improved in this run."
     lines = ["# 🤖 README Refinement Summary\n"]
     for s in summaries:
         repo = s.get("repo", "unknown")

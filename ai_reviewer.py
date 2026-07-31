@@ -325,7 +325,7 @@ class AIReviewer:
                 model_name="meta-llama/llama-3.3-70b-instruct:free",
                 prompt=prompt,
                 system=system,
-                extra_headers={"HTTP-Referer": "https://github.com/RepoSonar"}
+                extra_headers={"HTTP-Referer": "https://github.com/AutoREADME"}
             )
             if res:
                 log.info(f"      ⚡ Powered by OpenRouter (Llama-3.3-70B) for {label}")

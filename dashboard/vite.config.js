@@ -157,7 +157,7 @@ const configApiPlugin = (env) => ({
               'Accept': 'application/vnd.github.v3+json',
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
-              'User-Agent': 'RepoSonar-Dashboard'
+              'User-Agent': 'AutoREADME-Dashboard'
             },
             body: JSON.stringify({
               event_type: 'trigger-readme-improve',

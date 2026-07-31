@@ -1,4 +1,4 @@
-name: 🤖 RepoSonar — Autonomous Documentation Engine
+name: 🤖 AutoREADME — Autonomous Documentation Engine
 
 on:
   schedule:
@@ -58,10 +58,10 @@ jobs:
 
       - name: Configure git identity
         run: |
-          git config --global user.email "${{ secrets.GIT_USER_EMAIL || 'bot@reposonar.dev' }}"
-          git config --global user.name  "${{ secrets.GIT_USER_NAME || 'RepoSonar Bot' }}"
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL || 'bot@autoreadme.dev' }}"
+          git config --global user.name  "${{ secrets.GIT_USER_NAME || 'AutoREADME Bot' }}"
 
-      - name: Run RepoSonar Engine
+      - name: Run AutoREADME Engine
         env:
           GEMINI_API_KEY:     ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY:       ${{ secrets.GROQ_API_KEY }}

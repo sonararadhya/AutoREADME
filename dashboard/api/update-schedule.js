@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': `Bearer ${token}`,
-        'User-Agent': 'RepoSonar-Dashboard'
+        'User-Agent': 'AutoREADME-Dashboard'
       }
     });
 
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': `Bearer ${token}`,
-        'User-Agent': 'RepoSonar-Dashboard'
+        'User-Agent': 'AutoREADME-Dashboard'
       }
     });
 
@@ -91,7 +91,7 @@ export default async function handler(req, res) {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'RepoSonar-Dashboard'
+        'User-Agent': 'AutoREADME-Dashboard'
       },
       body: JSON.stringify({
         message: `chore: Update automation runs to ${numRuns} per day`,
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
             'Accept': 'application/vnd.github.v3+json',
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
-            'User-Agent': 'RepoSonar-Dashboard'
+            'User-Agent': 'AutoREADME-Dashboard'
           },
           body: JSON.stringify({
             message: `chore: Update automation runs to ${numRuns} per day`,

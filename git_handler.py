@@ -39,8 +39,8 @@ class GitHandler:
             self._run(["git", "reset", "--hard", f"origin/{default_branch}"], cwd=local_path)
 
         # Configure git identity dynamically from environment or generic defaults
-        git_email = os.getenv("GIT_USER_EMAIL") or (f"{self.username}@users.noreply.github.com" if self.username else "bot@reposonar.dev")
-        git_name  = os.getenv("GIT_USER_NAME")  or self.username or "RepoSonar Bot"
+        git_email = os.getenv("GIT_USER_EMAIL") or (f"{self.username}@users.noreply.github.com" if self.username else "bot@autoreadme.dev")
+        git_name  = os.getenv("GIT_USER_NAME")  or self.username or "AutoREADME Bot"
 
         self._run(["git", "config", "user.email", git_email], cwd=local_path)
         self._run(["git", "config", "user.name",  git_name],  cwd=local_path)
