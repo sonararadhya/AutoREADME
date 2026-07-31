@@ -7,8 +7,8 @@ export default async function handler(req, res) {
 
   const { key, value, password } = req.body;
 
-  if (!key || value === undefined || !password) {
-    return res.status(400).json({ error: 'Missing key, value, or password' });
+  if (!key || value === undefined) {
+    return res.status(400).json({ error: 'Missing key or value' });
   }
 
   try {

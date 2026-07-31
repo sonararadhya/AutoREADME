@@ -129,23 +129,6 @@ const fetchVisitorLogsHelper = async (client) => {
 };
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const isSessionCookiePresent = document.cookie.split(';').some(item => item.trim().startsWith('reposonar_session='));
-    if (!isSessionCookiePresent) {
-      try {
-        sessionStorage.removeItem('reposonar_auth');
-        sessionStorage.removeItem('reposonar_pass');
-      } catch (e) {
-        console.warn(e);
-      }
-      return false;
-    }
-    return safeGetItem('reposonar_auth') === 'true' && safeGetItem('reposonar_pass') !== '';
-  });
-  const [passwordInput, setPasswordInput] = useState(() => {
-    return safeGetItem('reposonar_pass');
-  });
-  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('SUMMARY'); 
   
   const [results, setResults] = useState([]);
@@ -175,32 +158,6 @@ function App() {
   const [newRepoUrl, setNewRepoUrl] = useState('');
   
   const [systemLogs, setSystemLogs] = useState([]);
-  const [visitorLogs, setVisitorLogs] = useState([]);
-  const [visitorFetchError, setVisitorFetchError] = useState(null);
-  const [visitorSearch, setVisitorSearch] = useState('');
-  const [visitorLoading, setVisitorLoading] = useState(false);
-
-  const handleLogin = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    try {
-      const res = await fetch('/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: passwordInput })
-      });
-      if (res.ok) {
-        document.cookie = "reposonar_session=active; path=/; sameSite=strict";
-        safeSetItem('reposonar_auth', 'true');
-        safeSetItem('reposonar_pass', passwordInput);
-        setIsAuthenticated(true);
-      } else {
-        alert("Incorrect password");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to authenticate with backend: " + err.message);
-    }
-  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -212,11 +169,10 @@ function App() {
      const newVal = !currentVal;
      setter(newVal);
      try {
-       const password = safeGetItem('reposonar_pass') || passwordInput;
        const res = await fetch('/api/save-config', {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ key, value: newVal ? 'true' : 'false', password })
+         body: JSON.stringify({ key, value: newVal ? 'true' : 'false' })
        });
        if (!res.ok) {
          const data = await res.json().catch(() => ({}));
@@ -233,11 +189,10 @@ function App() {
     const newRepos = activeRepos.includes(repoUrl) ? activeRepos.filter(r => r !== repoUrl) : [...activeRepos, repoUrl];
     setActiveRepos(newRepos);
     try {
-      const password = safeGetItem('reposonar_pass') || passwordInput;
       const res = await fetch('/api/save-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'REPOSITORIES', value: JSON.stringify(newRepos), password })
+        body: JSON.stringify({ key: 'REPOSITORIES', value: JSON.stringify(newRepos) })
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -251,12 +206,11 @@ function App() {
   };
 
   const handleManualRun = async () => {
-    const password = safeGetItem('reposonar_pass') || passwordInput;
     try {
       const res = await fetch('/api/trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({})
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -270,12 +224,11 @@ function App() {
   };
 
   const updateRunsPerDay = async (numRuns) => {
-    const password = safeGetItem('reposonar_pass') || passwordInput;
     try {
       const res = await fetch('/api/update-schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, numRuns })
+        body: JSON.stringify({ numRuns })
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -285,7 +238,7 @@ function App() {
       await fetch('/api/save-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'RUNS_PER_DAY', value: numRuns.toString(), password })
+        body: JSON.stringify({ key: 'RUNS_PER_DAY', value: numRuns.toString() })
       });
       alert(`Successfully updated schedule to ${numRuns} runs per day!`);
     } catch (e) {
@@ -296,11 +249,10 @@ function App() {
 
   const saveNotes = async () => {
     try {
-      const password = safeGetItem('reposonar_pass') || passwordInput;
       const res = await fetch('/api/save-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'USER_NOTES', value: userNotes, password })
+        body: JSON.stringify({ key: 'USER_NOTES', value: userNotes })
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -324,22 +276,17 @@ function App() {
       }
       
       try {
-        const [repoRes, runsRes, configRes, runLogsRes, visitorLogsData] = await Promise.all([
+        const [repoRes, runsRes, configRes, runLogsRes] = await Promise.all([
           supabase.from('repo_results').select('*').order('processed_at', { ascending: false }).limit(500),
           supabase.from('runs').select('*').order('started_at', { ascending: false }).limit(100),
           supabase.from('system_config').select('*'),
-          supabase.from('run_logs').select('*').in('level', ['error', 'warning']).order('ts', { ascending: false }).limit(50),
-          fetchVisitorLogsHelper(supabase)
+          supabase.from('run_logs').select('*').in('level', ['error', 'warning']).order('ts', { ascending: false }).limit(50)
         ]);
 
         if (repoRes.error) throw repoRes.error;
         if (runsRes.error) throw runsRes.error;
         
         setSystemLogs(runLogsRes.data || []);
-        if (visitorLogsData) {
-          setVisitorLogs(visitorLogsData.data || []);
-          setVisitorFetchError(visitorLogsData.error || null);
-        }
 
         let fetchedMinutes = 0;
         let dbRepos = [];
@@ -457,80 +404,7 @@ function App() {
       }
     }
     fetchData();
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !supabase) return;
-
-    let channel;
-    try {
-      channel = supabase
-        .channel('public:visitors_live')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'visitors' },
-          (payload) => {
-            if (payload.new) {
-              setVisitorLogs((prev) => {
-                const exists = prev.some(item => item.id === payload.new.id);
-                return exists ? prev : [payload.new, ...prev];
-              });
-            }
-          }
-        )
-        .subscribe();
-    } catch(e) {
-      console.warn("Realtime WebSocket subscription setup failed:", e);
-    }
-
-    const intervalId = setInterval(async () => {
-      try {
-        const data = await fetchVisitorLogsHelper(supabase);
-        if (data && data.length > 0) {
-          setVisitorLogs(data);
-        }
-      } catch (err) {
-        console.warn("Visitor background auto-poll error:", err);
-      }
-    }, 15000);
-
-    return () => {
-      clearInterval(intervalId);
-      if (channel) supabase.removeChannel(channel);
-    };
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated) {
-    return (
-      <div className="app-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div className="glass-panel login-panel" style={{ padding: '50px 40px', width: '100%', maxWidth: '420px', textAlign: 'center', borderRadius: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '350px', width: '100%', margin: '0 auto', position: 'relative' }}>
-            <Fingerprint size={48} color="var(--accent-primary)" style={{ margin: '0 auto 16px auto', filter: 'drop-shadow(0 0 10px var(--accent-glow))' }} />
-            <h2 style={{ marginBottom: '10px', fontSize: '24px' }}>RepoSonar Portal</h2>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={passwordInput} 
-                onChange={(e) => setPasswordInput(e.target.value)} 
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                placeholder="Authorization Key..." 
-                style={{ width: '100%', padding: '16px', paddingRight: '48px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid var(--panel-border)', fontSize: '16px', outline: 'none' }} 
-              />
-              <div 
-                onClick={() => setShowPassword(!showPassword)} 
-                style={{ position: 'absolute', right: '16px', cursor: 'pointer', color: 'var(--text-secondary)' }}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </div>
-            </div>
-            <button onClick={handleLogin} className="btn primary" style={{ padding: '16px', fontSize: '16px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-              <KeyRound size={18} /> Authenticate
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div className="app-container">
@@ -595,22 +469,6 @@ function App() {
               </button>
             ))}
           </div>
-          <button 
-            onClick={() => {
-              document.cookie = "reposonar_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              safeRemoveItem('reposonar_auth');
-              safeRemoveItem('reposonar_pass');
-              setIsAuthenticated(false);
-              setPasswordInput('');
-            }}
-            style={{ 
-              padding: '10px 20px', borderRadius: '14px', border: '1px solid var(--panel-border)', cursor: 'pointer',
-              background: 'rgba(244, 63, 94, 0.1)',
-              color: '#f43f5e', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', transition: 'all 0.3s'
-            }}
-          >
-            Logout
-          </button>
         </div>
       </header>
       
@@ -619,7 +477,6 @@ function App() {
         <button className={`nav-tab ${activeTab === 'GRAPHS' ? 'active' : ''}`} onClick={() => handleTabChange('GRAPHS')}><BarChart2 size={18} /> GRAPHS & METRICS</button>
         <button className={`nav-tab ${activeTab === 'DETAILS' ? 'active' : ''}`} onClick={() => handleTabChange('DETAILS')}><GitBranch size={18} /> COMMIT DETAILS</button>
         <button className={`nav-tab ${activeTab === 'REPOSITORIES' ? 'active' : ''}`} onClick={() => handleTabChange('REPOSITORIES')}><LayoutGrid size={18} /> REPOSITORIES</button>
-        <button className={`nav-tab ${activeTab === 'VISITORS' ? 'active' : ''}`} onClick={() => handleTabChange('VISITORS')}><Users size={18} /> VISITORS</button>
         <button className={`nav-tab ${activeTab === 'FAULTS' ? 'active' : ''}`} onClick={() => handleTabChange('FAULTS')}><AlertCircle size={18} /> FAULTS</button>
         <button className={`nav-tab ${activeTab === 'NOTES' ? 'active' : ''}`} onClick={() => handleTabChange('NOTES')}><FileText size={18} /> NOTES</button>
       </div>
@@ -627,7 +484,18 @@ function App() {
       {loading ? <div className="spinner"></div> : error ? <div className="glass-panel" style={{ padding: '24px', textAlign: 'center' }}><AlertCircle size={48} color="var(--danger)" /><p>{error}</p></div> : (
         <>
           {activeTab === 'SUMMARY' && (
-            <div className="repos-grid">
+            <div>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid var(--accent-primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <Zap size={20} color="var(--accent-light)" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — Summary Overview</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Displays real-time status matrix, log counts, 7-day contribution heatmaps, and last activity timestamps for all connected repositories.<br/>
+                  <strong>Project Working:</strong> RepoSonar runs an automated workflow (via GitHub Actions & Python orchestrator) that pulls target repos, scans source code for undocumented features, uses multi-provider AI (Groq, GitHub Models, OpenRouter, Gemini) to update README documentation, and logs commit metrics directly to Supabase.
+                </p>
+              </div>
+              <div className="repos-grid">
               {Object.keys(repoGroups).map((repoName) => {
                 const repoCommits = repoGroups[repoName];
                 const heatmapDays = getLastNDays(7);
@@ -659,11 +527,23 @@ function App() {
                   </div>
                 );
               })}
+              </div>
             </div>
           )}
 
           {activeTab === 'GRAPHS' && (
             <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid #38bdf8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <BarChart2 size={20} color="#38bdf8" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — Telemetry & Analytics</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Provides interactive charts tracking AI Token Consumption, Runner Latency, 5-Day System Commits, Workflow Stability, and Repo Refinement Pulses.<br/>
+                  <strong>Project Working:</strong> Analyzes execution telemetry in real-time to monitor token usage trends, optimize API cost guardrails, prevent rate limits via SHA-256 hash caching (<code>SmartOptimizer</code>), and verify run stability.
+                </p>
+              </div>
+
               <div style={{ display: 'flex', gap: '24px', marginBottom: '32px', flexWrap: 'wrap' }}>
                 <div className="glass-card" style={{ flex: '2 1 500px', padding: '32px' }}>
                   <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}><Cpu size={22} color="#38bdf8"/> Gemini Token AI Usage</h3>
@@ -705,6 +585,17 @@ function App() {
 
           {activeTab === 'DETAILS' && (
             <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid #a855f7' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <GitBranch size={20} color="#a855f7" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — Commit Log & Diff Inspection</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Allows developers to inspect individual documentation commits and view GitHub diff comparisons.<br/>
+                  <strong>Project Working:</strong> When documentation improvements are committed directly or via pull requests, commit details and PR URLs are stored in Supabase <code>repo_results</code>. The interactive <code>DiffViewer</code> component parses original vs. improved markdown to highlight exact changes.
+                </p>
+              </div>
+
                {!selectedRepo ? (
                  <div className="repos-grid">
                     {Object.keys(repoGroups).map(repoName => (
@@ -740,6 +631,17 @@ function App() {
 
           {activeTab === 'REPOSITORIES' && (
             <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid #10b981' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <LayoutGrid size={20} color="#10b981" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — Repository Sync Configuration</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Control panel for connecting or disconnecting target GitHub repositories for automated AI monitoring.<br/>
+                  <strong>Project Working:</strong> Connected repositories are saved in Supabase <code>system_config</code>. On scheduled cron runs, the Python orchestrator loads this configuration to clone, analyze, and refine READMEs for all connected projects.
+                </p>
+              </div>
+
               <div className="glass-panel" style={{ padding: '32px', marginBottom: '32px' }}>
                 <h2 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <LayoutGrid size={24} color="var(--accent-primary)"/> Repository Sync Configuration
@@ -775,6 +677,17 @@ function App() {
 
           {activeTab === 'FAULTS' && (
             <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid var(--danger)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <AlertCircle size={20} color="var(--danger)" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — System Fault Diagnostics</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Surfaces real-time operational warnings, API error stack traces, rate-limit warnings, and repository refinement failures.<br/>
+                  <strong>Project Working:</strong> <code>SupabaseLogger</code> buffers log events and records warnings/errors into <code>run_logs</code> and <code>repo_results</code>. If critical errors or quota limits occur, Discord webhooks send immediate alerts to operators.
+                </p>
+              </div>
+
               <div className="glass-panel" style={{ padding: '32px' }}>
                 <h2 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <AlertCircle size={24} color="var(--danger)"/> System Faults & Errors
@@ -823,6 +736,17 @@ function App() {
 
           {activeTab === 'NOTES' && (
             <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+              <div className="glass-panel" style={{ padding: '20px 24px', marginBottom: '24px', borderLeft: '4px solid #f59e0b' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <FileText size={20} color="#f59e0b" />
+                  <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Feature & Workflow Notes — Architectural Remarks & Directives</h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>Purpose:</strong> Persistent system notepad for team notes, workflow directives, and prompt guidance.<br/>
+                  <strong>Project Working:</strong> Text entered here is synced to Supabase <code>system_config</code> under the key <code>USER_NOTES</code>. This allows developers to leave persistent context or instructions for automated documentation maintenance across runs.
+                </p>
+              </div>
+
               <div className="glass-panel" style={{ padding: '32px' }}>
                 <h2 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <FileText size={24} color="var(--accent-primary)"/> System Notes & Architectural Remarks
@@ -839,139 +763,6 @@ function App() {
                 >
                   Save Notes
                 </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'VISITORS' && (
-            <div style={{ animation: 'slideUp 0.5s ease-out' }}>
-              <div className="glass-panel" style={{ padding: '32px', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
-                      <Users size={24} color="var(--accent-primary)"/> Visitor Telemetry & Analytics
-                    </h2>
-                  </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button 
-                      onClick={async () => {
-                        setVisitorLoading(true);
-                        try {
-                          const res = await fetchVisitorLogsHelper(supabase);
-                          setVisitorLogs(res.data || []);
-                          setVisitorFetchError(res.error || null);
-                        } catch(e) {
-                          console.error(e);
-                          setVisitorLogs([]);
-                          setVisitorFetchError(e.message || 'Fetch failed');
-                        } finally {
-                          setVisitorLoading(false);
-                        }
-                      }}
-                      style={{
-                        padding: '10px 18px', borderRadius: '12px', border: '1px solid var(--panel-border)', cursor: 'pointer',
-                        background: 'rgba(168, 85, 247, 0.1)', color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold'
-                      }}
-                    >
-                      <RefreshCw size={16} className={visitorLoading ? "radar-spin" : ""} /> Sync Live Telemetry
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-                  <div className="glass-card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Visits Logged</span>
-                    <h3 style={{ fontSize: '28px', margin: '8px 0 0 0', color: 'var(--accent-light)' }}>{visitorLogs.length}</h3>
-                  </div>
-
-                  <div className="glass-card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Unique Countries</span>
-                    <h3 style={{ fontSize: '28px', margin: '8px 0 0 0', color: '#38bdf8' }}>
-                      {new Set(visitorLogs.map(v => v.country).filter(c => c && c !== 'Unknown')).size || (visitorLogs.length > 0 ? 1 : 0)}
-                    </h3>
-                  </div>
-
-                  <div className="glass-card" style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Top Device Type</span>
-                    <h3 style={{ fontSize: '24px', margin: '8px 0 0 0', color: '#f59e0b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                      {(() => {
-                        const counts = {};
-                        visitorLogs.forEach(v => { const dev = v.device || 'Unknown'; counts[dev] = (counts[dev] || 0) + 1; });
-                        let top = 'N/A', max = 0;
-                        for (let [d, c] of Object.entries(counts)) { if (c > max) { max = c; top = d; } }
-                        return top;
-                      })()}
-                    </h3>
-                  </div>
-                </div>
-
-                <div style={{ position: 'relative', marginBottom: '24px' }}>
-                  <Search size={18} color="var(--text-secondary)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input 
-                    type="text" 
-                    value={visitorSearch}
-                    onChange={(e) => setVisitorSearch(e.target.value)}
-                    placeholder="Search visitors..."
-                    style={{ width: '100%', padding: '12px 16px 12px 44px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid var(--panel-border)', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <div style={{ overflowX: 'auto' }} className="custom-scrollbar">
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid var(--panel-border)', color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '1px' }}>
-                        <th style={{ padding: '14px 16px' }}>ID</th>
-                        <th style={{ padding: '14px 16px' }}>Time (IST)</th>
-                        <th style={{ padding: '14px 16px' }}>Country</th>
-                        <th style={{ padding: '14px 16px' }}>Device</th>
-                        <th style={{ padding: '14px 16px' }}>Browser</th>
-                        <th style={{ padding: '14px 16px' }}>OS</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(() => {
-                        const term = visitorSearch.toLowerCase().trim();
-                        const filtered = visitorLogs.filter(v => 
-                          !term || 
-                          (v.id && String(v.id).includes(term)) ||
-                          (v.country && v.country.toLowerCase().includes(term)) ||
-                          (v.device && v.device.toLowerCase().includes(term)) ||
-                          (v.browser && v.browser.toLowerCase().includes(term)) ||
-                          (v.os && v.os.toLowerCase().includes(term))
-                        );
-
-                        if (filtered.length === 0) {
-                          return (
-                            <tr>
-                              <td colSpan="6" style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                {visitorLogs.length === 0 ? "No visitor data logged." : "No matching visitor logs found."}
-                              </td>
-                            </tr>
-                          );
-                        }
-
-                        return filtered.map((v, idx) => (
-                          <tr key={v.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                            <td style={{ padding: '14px 16px', color: 'var(--accent-light)', fontFamily: 'monospace', fontWeight: 'bold' }}>
-                              #{v.id || idx + 1}
-                            </td>
-                            <td style={{ padding: '14px 16px', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
-                              {formatISTTimeAndPassed(v.created_at_ist || v.created_at)}
-                            </td>
-                            <td style={{ padding: '14px 16px' }}>
-                              <span style={{ padding: '4px 10px', borderRadius: '20px', background: 'rgba(168,85,247,0.15)', color: '#d8b4fe', fontSize: '12px', border: '1px solid rgba(168,85,247,0.3)', fontWeight: '600' }}>
-                                {v.country || 'Unknown'}
-                              </span>
-                            </td>
-                            <td style={{ padding: '14px 16px', color: 'var(--text-primary)' }}>{v.device || 'Unknown'}</td>
-                            <td style={{ padding: '14px 16px', color: 'var(--text-secondary)' }}>{v.browser || 'Unknown'}</td>
-                            <td style={{ padding: '14px 16px', color: 'var(--text-secondary)' }}>{v.os || 'Unknown'}</td>
-                          </tr>
-                        ));
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           )}
