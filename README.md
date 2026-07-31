@@ -22,19 +22,19 @@ AutoREADME operates as an autonomous sidecar for open-source and enterprise repo
 
 ```mermaid
 graph TD
-    A[GitHub Actions Cron / Dispatch] -->|Trigger| B[main.py Master Orchestrator]
-    B --> C[Config Loader - YAML + ENV]
-    B --> D[Code Analyzer - Read-Only AST & Regex Parser]
-    D -->|Extracted Feature Context| E[AI Reviewer Engine]
-    E -->|1. Groq Llama-3.3-70B| F[LLM Provider Failover Chain]
-    E -->|2. GitHub Models GPT-4o-mini| F
-    E -->|3. OpenRouter Llama-3.3-70B| F
-    E -->|4. Google Gemini 2.0 Flash| F
-    E -->|5. Deterministic Timestamp Fallback| F
-    F -->|Generated Markdown| G[Smart Optimizer - SHA-256 Cache]
-    G -->|Diff Verification| H[Git Handler - Direct Commit & Push]
-    B --> I[Supabase Logger - Cloud Telemetry]
-    I --> J[Vite + React 19 Observability Dashboard]
+    A["GitHub Actions Cron / Dispatch"] -->|"Trigger"| B["main.py Master Orchestrator"]
+    B --> C["Config Loader (YAML + ENV)"]
+    B --> D["Code Analyzer (Read-Only AST & Regex)"]
+    D -->|"Extracted Context"| E["AI Reviewer Engine"]
+    E -->|"1. Groq Llama-3.3-70B"| F["LLM Provider Failover Chain"]
+    E -->|"2. GitHub Models GPT-4o-mini"| F
+    E -->|"3. OpenRouter Llama-3.3-70B"| F
+    E -->|"4. Google Gemini 2.0 Flash"| F
+    E -->|"5. Deterministic Backup"| F
+    F -->|"Generated Markdown"| G["Smart Optimizer (SHA-256 Cache)"]
+    G -->|"Diff Verification"| H["Git Handler (Commit & Push)"]
+    B --> I["Supabase Logger (Cloud Telemetry)"]
+    I --> J["Vite + React 19 Observability Dashboard"]
 ```
 
 ---
